@@ -144,7 +144,7 @@ build_and_push_image() {
     echo_info "Building and pushing container image"
     
     # Build the Docker image
-    docker build -t $CONTAINER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG .
+    docker build -t $CONTAINER_REGISTRY/$IMAGE_NAME:$IMAGE_TAG ./docker-image
     
     # Push to registry
     az acr login --name $(echo $CONTAINER_REGISTRY | cut -d'.' -f1)
