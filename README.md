@@ -60,8 +60,8 @@ This solution monitors cert-manager certificates in your AKS cluster and automat
 
 3. **Verify deployment**:
    ```bash
-   kubectl get pods -n cert-manager -l app=cert-monitor
-   kubectl logs -n cert-manager -l app=cert-monitor -f
+   kubectl get pods -n cert-manager-key-vault-sync -key-vault-sync -l app=cert-monitor
+   kubectl logs -n cert-manager-key-vault-sync -key-vault-sync -l app=cert-monitor -f
    ```
 
 ## Manual Setup
@@ -117,7 +117,7 @@ az identity federated-credential create \
   --identity-name cert-monitor-identity \
   --resource-group your-resource-group \
   --issuer $AKS_OIDC_ISSUER \
-  --subject "system:serviceaccount:cert-manager:cert-monitor" \
+  --subject "system:serviceaccount:cert-manager-key-vault-sync:cert-manager-key-vault-sync" \
   --audience "api://AzureADTokenExchange"
 ```
 
@@ -125,10 +125,11 @@ az identity federated-credential create \
 
 ```bash
 # Build and push container
-docker build -t your-registry/cert-monitor:latest .
-docker push your-registry/cert-monitor:latest
+docker build -t your-registry/cert-manager-key-vault-sync:latest ./docker-image
+docker push your-registry/cert-manager-key-vault-sync:latest
 
 # Update deployment.yaml with your values and deploy
+kubectl create namespace cert-manager-key-vault-sync
 kubectl apply -f k8s/deployment.yaml
 ```
 
@@ -177,17 +178,17 @@ Each certificate includes metadata tags:
 
 ### Check Deployment Status
 ```bash
-kubectl get pods -n cert-manager -l app=cert-monitor
-kubectl describe pod -n cert-manager -l app=cert-monitor
+kubectl get pods -n cert-manager-key-vault-sync -l app=cert-monitor
+kubectl describe pod -n cert-manager-key-vault-sync -l app=cert-monitor
 ```
 
 ### View Logs
 ```bash
 # Real-time logs
-kubectl logs -n cert-manager -l app=cert-monitor -f
+kubectl logs -n cert-manager-key-vault-sync -l app=cert-monitor -f
 
 # Recent logs
-kubectl logs -n cert-manager -l app=cert-monitor --tail=100
+kubectl logs -n cert-manager-key-vault-sync -l app=cert-monitor --tail=100
 ```
 
 ### Common Issues
@@ -230,7 +231,7 @@ The deployment includes:
    ```bash
    python -m venv venv
    source venv/bin/activate  # or venv\Scripts\activate on Windows
-   pip install -r app/requirements.txt
+   pip install -r docker-image/requirements.txt
    ```
 
 2. **Configure environment**:
@@ -241,7 +242,7 @@ The deployment includes:
 
 3. **Run locally**:
    ```bash
-   cd app
+   cd docker-image
    python cert_monitor.py
    ```
 

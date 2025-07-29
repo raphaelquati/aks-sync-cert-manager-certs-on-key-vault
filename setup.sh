@@ -12,7 +12,7 @@ AKS_CLUSTER_NAME="your-aks-cluster"
 KEY_VAULT_NAME="your-keyvault-name"
 MANAGED_IDENTITY_NAME="cert-monitor-identity"
 CONTAINER_REGISTRY="your-registry.azurecr.io"
-IMAGE_NAME="cert-monitor"
+IMAGE_NAME="cert-manager-key-vault-sync"
 IMAGE_TAG="latest"
 
 # Colors for output
@@ -133,7 +133,7 @@ setup_workload_identity() {
         --identity-name $MANAGED_IDENTITY_NAME \
         --resource-group $RESOURCE_GROUP \
         --issuer $AKS_OIDC_ISSUER \
-        --subject "system:serviceaccount:cert-manager:cert-monitor" \
+        --subject "system:serviceaccount:cert-manager-key-vault-sync:cert-manager-key-vault-sync" \
         --audience "api://AzureADTokenExchange"
     
     echo_info "Workload identity federation configured successfully"
@@ -179,10 +179,11 @@ deploy_to_kubernetes() {
         --overwrite-existing
     
     # Apply the deployment
+    kubectl create namespace cert-manager-key-vault-sync || echo_info "Namespace cert-manager-key-vault-sync already exists"
     kubectl apply -f k8s/deployment-configured.yaml
     
     echo_info "Deployed to Kubernetes successfully"
-    echo_info "Check deployment status with: kubectl get pods -n cert-manager -l app=cert-monitor"
+    echo_info "Check deployment status with: kubectl get pods -n cert-manager-key-vault-sync -l app=cert-manager-key-vault-sync"
 }
 
 # Main execution
@@ -214,8 +215,8 @@ main() {
     echo_info "Setup completed successfully!"
     echo_info ""
     echo_info "Next steps:"
-    echo_info "1. Verify the deployment: kubectl get pods -n cert-manager -l app=cert-monitor"
-    echo_info "2. Check logs: kubectl logs -n cert-manager -l app=cert-monitor -f"
+    echo_info "1. Verify the deployment: kubectl get pods -n cert-manager-key-vault-sync -l app=cert-monitor"
+    echo_info "2. Check logs: kubectl logs -n cert-manager-key-vault-sync -l app=cert-monitor -f"
     echo_info "3. Verify certificates are being uploaded to Key Vault"
     echo_info ""
     echo_info "The monitor will check for certificate updates every 5 minutes."

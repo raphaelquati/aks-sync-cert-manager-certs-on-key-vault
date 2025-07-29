@@ -5,7 +5,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cert-monitor-config-namespace
-  namespace: cert-manager
+  namespace: cert-manager-key-vault-sync
 data:
   deployment.yaml: |
     env:
@@ -19,7 +19,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cert-monitor-config-pattern
-  namespace: cert-manager
+  namespace: cert-manager-key-vault-sync
 data:
   deployment.yaml: |
     env:
@@ -33,7 +33,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cert-monitor-config-critical
-  namespace: cert-manager
+  namespace: cert-manager-key-vault-sync
 data:
   deployment.yaml: |
     env:

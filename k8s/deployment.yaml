@@ -4,7 +4,7 @@ metadata:
   name: cert-manager-key-vault-sync
   namespace: cert-manager-key-vault-sync
   annotations:
-    azure.workload.identity/client-id: "032cfbde-e55f-400f-96aa-91552e6bd975"
+    azure.workload.identity/client-id: "YOUR_MANAGED_IDENTITY_CLIENT_ID"
   labels:
     azure.workload.identity/use: "true"
 ---
@@ -34,11 +34,11 @@ spec:
         fsGroup: 1000
       containers:
       - name: cert-monitor
-        image: aksmarkalpha.azurecr.io/cert-manager-keyvault-sync:0.1.0
+        image: YOUR_REGISTRY/cert-manager-key-vault-sync:0.1.0
         imagePullPolicy: Always
         env:
         - name: KEY_VAULT_URL
-          value: "https://kv-aksunits-test.vault.azure.net/"
+          value: "https://YOUR_KEYVAULT_NAME.vault.azure.net/"
         - name: CHECK_INTERVAL_SECONDS
           value: "300"  # 5 minutes
         - name: NAMESPACE_FILTER
@@ -46,7 +46,7 @@ spec:
         - name: CERT_NAME_FILTER
           value: ""  # Empty means all certificates
         - name: AZURE_CLIENT_ID
-          value: "032cfbde-e55f-400f-96aa-91552e6bd975"
+          value: "YOUR_MANAGED_IDENTITY_CLIENT_ID"
         resources:
           requests:
             memory: "128Mi"
