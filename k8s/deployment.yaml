@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cert-manager-key-vault-sync
+  namespace: cert-manager-key-vault-sync
+  annotations:
+    azure.workload.identity/client-id: "032cfbde-e55f-400f-96aa-91552e6bd975"
+  labels:
+    azure.workload.identity/use: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cert-manager-key-vault-sync
+  namespace: cert-manager-key-vault-sync
+  labels:
+    app: cert-monitor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cert-monitor
+  template:
+    metadata:
+      labels:
+        app: cert-monitor
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: cert-manager-key-vault-sync
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: cert-monitor
+        image: aksmarkalpha.azurecr.io/cert-manager-keyvault-sync:0.1.0
+        imagePullPolicy: Always
+        env:
+        - name: KEY_VAULT_URL
+          value: "https://kv-aksunits-test.vault.azure.net/"
+        - name: CHECK_INTERVAL_SECONDS
+          value: "300"  # 5 minutes
+        - name: NAMESPACE_FILTER
+          value: ""  # Empty means all namespaces
+        - name: CERT_NAME_FILTER
+          value: ""  # Empty means all certificates
+        - name: AZURE_CLIENT_ID
+          value: "032cfbde-e55f-400f-96aa-91552e6bd975"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      restartPolicy: Always
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cert-monitor
+rules:
+- apiGroups: ["cert-manager.io"]
+  resources: ["certificates"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-monitor
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-monitor
+subjects:
+- kind: ServiceAccount
+  name: cert-manager-key-vault-sync
+  namespace: cert-manager-key-vault-sync

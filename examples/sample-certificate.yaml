@@ -1,0 +1,37 @@
+# Example cert-manager certificate that will be monitored
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: web-app-tls
+  namespace: production
+spec:
+  secretName: web-app-tls-secret
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - app.example.com
+  - api.example.com
+---
+# This certificate will create a secret named 'web-app-tls-secret'
+# The cert-monitor will:
+# 1. Detect this certificate when it's ready
+# 2. Extract the certificate and private key from the secret
+# 3. Create a PFX file
+# 4. Check if the same certificate already exists in Key Vault
+# 5. Upload to Key Vault as 'production-web-app-tls-pfx' if different/new
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: admin@example.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: nginx

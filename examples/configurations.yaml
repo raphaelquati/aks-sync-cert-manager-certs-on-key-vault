@@ -1,0 +1,45 @@
+# Example configuration for monitoring specific certificates
+
+# 1. Monitor only certificates in specific namespaces
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cert-monitor-config-namespace
+  namespace: cert-manager
+data:
+  deployment.yaml: |
+    env:
+    - name: NAMESPACE_FILTER
+      value: "production,staging"  # Monitor only these namespaces
+    - name: CHECK_INTERVAL_SECONDS
+      value: "180"  # Check every 3 minutes
+---
+# 2. Monitor only specific certificate patterns
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cert-monitor-config-pattern
+  namespace: cert-manager
+data:
+  deployment.yaml: |
+    env:
+    - name: CERT_NAME_FILTER
+      value: "web-tls"  # Monitor only certificates with 'web-tls' in the name
+    - name: CHECK_INTERVAL_SECONDS
+      value: "600"  # Check every 10 minutes
+---
+# 3. High-frequency monitoring for critical certificates
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cert-monitor-config-critical
+  namespace: cert-manager
+data:
+  deployment.yaml: |
+    env:
+    - name: NAMESPACE_FILTER
+      value: "production"
+    - name: CERT_NAME_FILTER
+      value: "api-gateway"
+    - name: CHECK_INTERVAL_SECONDS
+      value: "60"  # Check every minute for critical certificates
