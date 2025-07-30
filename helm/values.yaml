@@ -1,0 +1,21 @@
+replicaCount: 1
+
+image:
+  repository: raphaelquati/aks-cert-manager-key-vault
+  tag: latest
+  pullPolicy: IfNotPresent
+
+env:
+  KEY_VAULT_URL: "https://YOUR_KEYVAULT_NAME.vault.azure.net/"
+  CHECK_INTERVAL_SECONDS: "300"
+  NAMESPACE_FILTER: ""
+  CERT_NAME_FILTER: ""
+  AZURE_CLIENT_ID: "YOUR_MANAGED_IDENTITY_CLIENT_ID"
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

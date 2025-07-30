@@ -1,0 +1,5 @@
+apiVersion: v2
+name: aks-sync-cert-manager-certs-on-key-vault
+description: Helm chart for deploying aks-sync-cert-manager-certs-on-key-vault
+version: 0.1.0
+appVersion: "1.0.0"

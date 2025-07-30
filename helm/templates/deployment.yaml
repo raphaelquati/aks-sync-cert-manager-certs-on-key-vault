@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aks-sync-cert-manager-certs-on-key-vault.fullname" . }}
+  labels:
+    app: {{ include "aks-sync-cert-manager-certs-on-key-vault.name" . }}
+
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "aks-sync-cert-manager-certs-on-key-vault.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "aks-sync-cert-manager-certs-on-key-vault.name" . }}
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: {{ include "aks-sync-cert-manager-certs-on-key-vault.fullname" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: cert-monitor
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: KEY_VAULT_URL
+              value: {{ .Values.env.KEY_VAULT_URL | quote }}
+            - name: CHECK_INTERVAL_SECONDS
+              value: {{ .Values.env.CHECK_INTERVAL_SECONDS | quote }}
+            - name: NAMESPACE_FILTER
+              value: {{ .Values.env.NAMESPACE_FILTER | quote }}
+            - name: CERT_NAME_FILTER
+              value: {{ .Values.env.CERT_NAME_FILTER | quote }}
+            - name: AZURE_CLIENT_ID
+              value: {{ .Values.env.AZURE_CLIENT_ID | quote }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - "import sys; sys.exit(0)"
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - "import sys; sys.exit(0)"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      restartPolicy: Always
