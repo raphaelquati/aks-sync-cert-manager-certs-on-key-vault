@@ -1,0 +1,13 @@
+apiVersion: v1
+entries:
+  aks-sync-cert-manager-certs-on-key-vault:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-07-30T22:22:21.085384923Z"
+    description: Helm chart for deploying aks-sync-cert-manager-certs-on-key-vault
+    digest: addd5e32f96e7cf6d071ba624da9302b9a57b42ec991cea2fb706d861eda8c15
+    name: aks-sync-cert-manager-certs-on-key-vault
+    urls:
+    - https://raphaelquati.github.io/aks-sync-cert-manager-certs-on-key-vault/aks-sync-cert-manager-certs-on-key-vault-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-07-30T22:22:21.085041502Z"
