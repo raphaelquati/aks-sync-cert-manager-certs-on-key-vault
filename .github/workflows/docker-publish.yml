@@ -8,7 +8,6 @@ on:
 env:
   IMAGE_NAME: aks-cert-manager-key-vault
   REGISTRY: ${{ secrets.REGISTRY }}
-  REPOSITORY: ${{ secrets.REGISTRY_REPOSITORY }}
   USERNAME: ${{ secrets.REGISTRY_USERNAME }}
   PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
 
@@ -36,5 +35,4 @@ jobs:
           context: docker-image
           file: docker-image/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
-
+          tags: ${{ env.REGISTRY }}/${{ env.USERNAME }}/${{ env.IMAGE_NAME }}:latest
