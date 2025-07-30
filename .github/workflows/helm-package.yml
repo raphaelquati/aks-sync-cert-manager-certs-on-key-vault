@@ -24,7 +24,7 @@ jobs:
 
       - name: Update Helm repo index
         run: |
-          helm repo index charts --url https://raphaelquati.github.io/aks-sync-cert-manager-certs-on-key-vault/charts
+          helm repo index charts --url https://raphaelquati.github.io/aks-sync-cert-manager-certs-on-key-vault
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
