@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'docker-image/**'
 
 env:
   IMAGE_NAME: aks-cert-manager-key-vault
